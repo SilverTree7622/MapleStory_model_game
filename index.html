@@ -1,0 +1,459 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.22.0/dist/phaser.js"></script>
+    </head>
+    <body>
+        <div id="p3Game"></div>
+        <script>
+            // var game;
+            // var graphics;
+            // var player;
+            // var stars;
+            // var platforms;
+            // var cursors;
+            // var movingPlatform;
+
+            // Skill management for player
+            class SkillManager {
+                constructor() {
+                    this.skills = [];
+                    this.properties = this.initProperties();
+                }
+                create(_scene) {
+                    // jump skill
+
+                    // line strike
+                    this.createSkill(this.skills, {
+                        name: 'strike',
+                        texture: 'line',
+                        movePos: {
+                            x: 0, y: 0, durX: 0, durY: 0
+                        },
+                        dmgPercent: 4, // dmg*4
+                        coolTime: 10,
+                        physicsDuringSkill: true,
+                        useSkill: function (_player, _tw) {
+                            console.log('this:', this);
+                            console.log('_player:', _player);
+                            console.log('_tw:', _tw);
+
+                            
+                            // _tw.addCounter({
+                                
+                            // });
+                        }
+                        
+                    });
+
+                    console.log('this.skills:', this.skiils);
+                }
+                initAllVisible(_bool) {
+                    
+                }
+                update() {
+
+                }
+
+                initProperties() {
+                    let tmpP = [];
+                    
+                    return tmpP;
+                }
+                createConfig(_list) {
+                    let tmpObj = {};
+                    tmpObj.name = _list.shift();
+                    tmpObj.texture = _list.shift();
+                    tmpObj.movePos = _list.shift();
+                    tmpObj.dmgPercent = _list.shift();
+                    tmpObj.coolTime = _list.shift();
+                    tmpObj.physicsDuringSkill = _list.shift();
+                    tmpObj.useSkill = undefined;
+                    return tmpObj;
+                }
+                createSkill(_skillList, _config) {
+                    let tmpSkill = _config;
+                    _skillList.push(tmpSkill);
+                }
+                useSkill(_idx, _player, _tw) { // using skill via idx
+                    this.skills[_idx].useSkill(_player, _tw);
+                    console.log('this.skiils[_idx]:', this.skiils[_idx]);
+                }
+            }
+
+            // Damage management for monsters
+            class DamageManager {
+                constructor() {
+
+                }
+                create() {
+
+                }
+                initAllVisible(_bool) {
+
+                }
+                update() {
+
+                }
+            }
+
+            class Entity {
+                constructor() {
+                    this.hp = 0;
+                    this.autoHp = 0; // per 5 sec
+                    this.mp = 0;
+                    this.autoMp = 0; // per 5 sec
+                    this.dmg = 0;
+                    this.isDeath = false;
+                    this.isSuperMan = false;
+                    this.direction = 1; // 0: left, 1: right
+                    this.textures = {
+                        idle: 'yellow',
+                        move: 'blue',
+                        gotHit: 'purple',
+                        attack: 'red'
+                    };
+                }
+            }
+
+            // control player
+            class Player extends Entity {
+                constructor() {
+                    super();
+                    this.hp = 100;
+                    this.autoHp = 1;
+                    this.mp = 100;
+                    this.autoMp = 2;
+                    this.dmg = 10;
+                }
+                create(_scene) {
+                    console.log('this:', this);
+                    this.createTexture(_scene);
+                }
+                initAllVisible(_bool) {
+
+                }
+                update() {
+
+                }
+
+                createTexture() {
+
+                }
+            }
+
+            // basic monster & properties
+            class Monster extends Entity{
+                constructor() {
+                    super();
+                }
+                create() {
+
+                }
+                initAllVisible(_bool) {
+
+                }
+                update() {
+
+                }
+            }
+
+            // UI about all the player input & All skill thumnail arrangement
+            class UIManager {
+                constructor(_storage) {
+                    this.playerPad = this.initPlayerPad();
+                    this.attackKey = this.initAttackKey();
+                    this.skillsTab = this.initSkillsTab();
+                    this.info = this.initInfo(_storage);
+                }
+                create(_scene) {
+                    this.createPlayerPad(_scene);
+                    this.createAttackKey(_scene);
+                    this.createSkillsTab(_scene);
+                    this.createInfo(_scene);
+                }
+                initAllVisible(_bool) {
+                    // this.playerPad.con.setVisible(_bool);
+                    // this.attackKey.con.setVisible(_bool);
+                    // this.skillsTab.con.setVisible(_bool);
+                }
+                update(_time, _delta) {
+                    this.updateInfoScore();
+                }
+                
+                // init
+                initPlayerPad() { // movement pad
+                    let tmpPP = {};
+                    tmpPP.up = undefined;
+                    tmpPP.down = undefined;
+                    tmpPP.left = undefined;
+                    tmpPP.right = undefined;
+                    tmpPP.con = undefined;
+                    tmpPP.pos = {
+                        x: 100, y: 400
+                    };
+                    return tmpPP;
+                }
+                initAttackKey() {
+                    let tmpAK = {};
+                    tmpAK.circleTexture = undefined;
+                    tmpAK.stringTexture = undefined;
+                    tmpAK.stringTextureTxt = undefined;
+                    tmpAK.con = undefined;
+                    tmpAK.pos = {
+                        x: 500, y: 400
+                    };
+                    return tmpAK;
+                }
+                initSkillsTab() {
+
+                }
+                initInfo(_storage) {
+                    let tmpI = {};
+                    tmpI.score = {
+                        runtimeTxt: 'SCORE : ',
+                        runtime: 0,
+                        runtimeStr: undefined,
+                        bestTxt: 'BEST : ',
+                        best: _storage == null ? 0 : _storage,
+                        bestStr: undefined
+                    };
+                    // fontFamily, font color, fontSize, border color, border color
+                    tmpI.fontProperties = ['Arial', '#ffffff', 30, '#000000', 3];
+                    tmpI.con = undefined;
+                    return tmpI;
+                }
+                // create
+                createPlayerPad() {
+
+                }
+                createAttackKey() {
+                    
+                }
+                createSkillsTab() {
+
+                }
+                createInfo(_scene) {
+                    this.createInfoScore(_scene);
+                    this.info.con = _scene.add.container();
+                    this.info.con.add([
+                        this.info.score.runtimeStr, this.info.score.bestStr
+                    ]);
+                    this.info.con.x = 10;
+                    this.info.con.y = 10;
+                }
+                createInfoScore(_scene) {
+                    this.info.score.runtimeStr = _scene.add.text(0, 0, this.info.score.runtimeTxt + this.info.score.runtime);
+                    this.info.score.runtimeStr.setFontFamily(this.info.fontProperties[0]);
+                    this.info.score.runtimeStr.setColor(this.info.fontProperties[1]);
+                    this.info.score.runtimeStr.setFontSize(this.info.fontProperties[2]);
+                    this.info.score.runtimeStr.setStroke(this.info.fontProperties[3], this.info.fontProperties[4]);
+                    this.info.score.bestStr = _scene.add.text(0, 35, this.info.score.bestTxt + this.info.score.best);
+                    this.info.score.bestStr.setFontFamily(this.info.fontProperties[0]);
+                    this.info.score.bestStr.setColor(this.info.fontProperties[1]);
+                    this.info.score.bestStr.setFontSize(this.info.fontProperties[2]);
+                    this.info.score.bestStr.setStroke(this.info.fontProperties[3], this.info.fontProperties[4]);
+                }
+                updateInfoScore() {
+                    // update best score via now score
+                    if (this.info.score.runtime >= this.info.score.best) {
+                        this.info.score.best = this.info.score.runtime;
+                        this.info.score.bestStr.setText(this.info.score.bestTxt + this.info.score.best);
+                    }
+                }
+            }
+
+            class WebStorage { // web local storage class
+                constructor() {
+                    this.name = 'MapleStoryModelGame';
+                    this.self = window.localStorage;
+                }
+                create() {
+                    console.log('storage this:', this.self);
+                }
+                setItem(_value) {
+                    this.self.setItem(this.name, _value);
+                }
+                getItem() {
+                    let tmpValue = this.self.getItem(this.name);
+                    return (tmpValue == null) ? 0 : tmpValue;
+                }
+            }
+
+            // Main Scene from Phaser Scene
+            class MainScene extends Phaser.Scene {
+                constructor() {
+                    super({ key: 'main' });
+                    this.tWebStorage = new WebStorage();
+                    this.tSkillManager = new SkillManager();
+                    this.tDamageManager = new DamageManager();
+                    this.tEntity = new Entity();
+                    this.tPlayer = new Player();
+                    this.tMonster = new Monster();
+                    this.tUIManager = new UIManager(this.tWebStorage.getItem());
+                }
+                create() {
+                    this.tWebStorage.create();
+                    this.tSkillManager.create(this);
+                    this.tDamageManager.create(this);
+                    this.tPlayer.create(this);
+                    this.tMonster.create(this);
+                    this.tUIManager.create(this);
+
+                    this.cameras.main.setBackgroundColor('#03d7fc');
+ 
+                    this.initAllVisible();
+                    this.initAllDepth();
+                }
+                initAllVisible() {
+                    let tmpTrue = true;
+                    this.tSkillManager.initAllVisible(!tmpTrue);
+                    this.tDamageManager.initAllVisible(!tmpTrue);
+                    this.tPlayer.initAllVisible(tmpTrue);
+                    this.tMonster.initAllVisible(tmpTrue);
+                    this.tUIManager.initAllVisible(tmpTrue);
+                }
+                initAllDepth() {
+
+                }
+                update(_time, _delta) {
+                    this.tUIManager.update(_time, _delta);
+                }
+            }
+
+            const config = {
+                type: Phaser.AUTO,
+                scale: {
+                    mode: Phaser.Scale.FIT,
+                    autoCenter: Phaser.Scale.CENTER_BOTH,
+                    width: 800,
+                    height: 600,
+                    parent: 'p3Game',
+                },
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 300 },
+                        debug: true
+                    }
+                },
+                banner: false,
+                scene: [MainScene]
+            };
+
+            window.onload = () => {
+                game = new Phaser.Game(config);
+            }
+
+            // function preload() {
+            //     this.load.image('ground', 'src/games/firstgame/assets/platform.png');
+            //     this.load.image('star', 'src/games/firstgame/assets/star.png');
+            //     this.load.spritesheet('dude', 'src/games/firstgame/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+            // }
+
+            // function create() {
+            //     graphics = this.add.graphics(
+            //         {
+            //             lineStyle: { width: 2, color: 0x00ff00 },
+            //             fillStyle: { color: 0xff0000 }
+            //         }
+            //     );
+
+
+            //     platforms = this.physics.add.staticGroup();
+
+            //     platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+            //     // platforms.create(600, 400, 'ground');
+            //     // platforms.create(50, 250, 'ground');
+            //     // platforms.create(750, 220, 'ground');
+
+            //     movingPlatform = this.physics.add.image(400, 400, 'ground');
+
+            //     movingPlatform.setImmovable(true);
+            //     movingPlatform.body.allowGravity = false;
+            //     movingPlatform.setVelocityX(50);
+
+            //     player = this.physics.add.sprite(100, 450, 'dude');
+
+            //     player.setBounce(0.2);
+            //     player.setCollideWorldBounds(true);
+
+            //     this.anims.create({
+            //         key: 'left',
+            //         frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            //         frameRate: 10,
+            //         repeat: -1
+            //     });
+
+            //     this.anims.create({
+            //         key: 'turn',
+            //         frames: [{ key: 'dude', frame: 4 }],
+            //         frameRate: 20
+            //     });
+
+            //     this.anims.create({
+            //         key: 'right',
+            //         frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            //         frameRate: 10,
+            //         repeat: -1
+            //     });
+
+            //     cursors = this.input.keyboard.createCursorKeys();
+
+            //     stars = this.physics.add.group({
+            //         key: 'star',
+            //         repeat: 11,
+            //         setXY: { x: 12, y: 0, stepX: 70 }
+            //     });
+
+            //     stars.children.iterate(function (child) {
+
+            //         child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+            //     });
+
+            //     this.physics.add.collider(player, platforms);
+            //     this.physics.add.collider(player, movingPlatform);
+            //     this.physics.add.collider(stars, platforms);
+            //     this.physics.add.collider(stars, movingPlatform);
+
+            //     this.physics.add.overlap(player, stars, collectStar, null, this);
+            // }
+
+            // function update() {
+            //     if (cursors.left.isDown) {
+            //         player.setVelocityX(-160);
+
+            //         player.anims.play('left', true);
+            //     }
+            //     else if (cursors.right.isDown) {
+            //         player.setVelocityX(160);
+
+            //         player.anims.play('right', true);
+            //     }
+            //     else {
+            //         player.setVelocityX(0);
+
+            //         player.anims.play('turn');
+            //     }
+
+            //     if (cursors.up.isDown && player.body.touching.down) {
+            //         player.setVelocityY(-330);
+            //     }
+
+            //     if (movingPlatform.x >= 500) {
+            //         movingPlatform.setVelocityX(-50);
+            //     }
+            //     else if (movingPlatform.x <= 300) {
+            //         movingPlatform.setVelocityX(50);
+            //     }
+            // }
+
+            // function collectStar(player, star) {
+            //     star.disableBody(true, true);
+            // }
+
+        </script>
+    </body>
+
+</html>
