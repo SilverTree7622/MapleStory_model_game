@@ -96,12 +96,12 @@
                 }
             }
 
-            class Entity {
+            class Entity { // 독립체
                 constructor() {
                     this.hp = 0;
-                    this.autoHp = 0; // per 5 sec
+                    this.autoHp = 0; // + per 5 sec
                     this.mp = 0;
-                    this.autoMp = 0; // per 5 sec
+                    this.autoMp = 0; // + per 5 sec
                     this.dmg = 0;
                     this.isDeath = false;
                     this.isSuperMan = false;
@@ -125,24 +125,16 @@
                     this.autoMp = 2;
                     this.dmg = 10;
                 }
-                create(_scene) {
-                    console.log('this:', this);
-                    this.createTexture(_scene);
-                }
-                initAllVisible(_bool) {
+                create() {
 
                 }
-                update() {
-
-                }
-
-                createTexture() {
+                initAllVisible() {
 
                 }
             }
 
             // basic monster & properties
-            class Monster extends Entity{
+            class Monster extends Entity {
                 constructor() {
                     super();
                 }
@@ -150,6 +142,18 @@
 
                 }
                 initAllVisible(_bool) {
+
+                }
+                update() {
+
+                }
+            }
+
+            class Platform {
+                constructor() {
+                    this.self = undefined;
+                }
+                create() {
 
                 }
                 update() {
@@ -283,24 +287,41 @@
             class MainScene extends Phaser.Scene {
                 constructor() {
                     super({ key: 'main' });
+                    this.imgList = {
+                        apple: 'apple',
+                        player: 'player',
+                        enemy: 'enemy',
+                        platformer: 'platformer',
+                        arrowSkill: 'arrowSkill'
+                    };
                     this.tWebStorage = new WebStorage();
                     this.tSkillManager = new SkillManager();
                     this.tDamageManager = new DamageManager();
                     this.tEntity = new Entity();
                     this.tPlayer = new Player();
                     this.tMonster = new Monster();
+                    this.tPlatform = new Platform();
                     this.tUIManager = new UIManager(this.tWebStorage.getItem());
+                }
+                preload() {
+                    this.load.image(this.imgList.arrowSkill, 'https://labs.phaser.io/assets/sprites/arrow.png');
+                    this.load.image(this.imgList.apple, 'https://labs.phaser.io/assets/sprites/apple.png');
+                    this.load.image(this.imgList.player, 'https://labs.phaser.io/assets/sprites/ufo.png');
+                    this.load.image(this.imgList.enemy, 'https://labs.phaser.io/assets/sprites/wabbit.png');
+                    this.load.image(this.imgList.platformer, 'https://labs.phaser.io/assets/sprites/platform.png');
                 }
                 create() {
                     this.tWebStorage.create();
-                    this.tSkillManager.create(this);
+                    this.tSkillManager.create(this, this.imgList.arrowSkill);
                     this.tDamageManager.create(this);
-                    this.tPlayer.create(this);
-                    this.tMonster.create(this);
+                    this.tPlayer.create(this, this.imgList.player);
+                    this.tMonster.create(this, this.imgList.enemy);
+                    this.tPlatform.create(this, this.imgList.platform);
                     this.tUIManager.create(this);
 
+                    // temp background color
                     this.cameras.main.setBackgroundColor('#03d7fc');
- 
+
                     this.initAllVisible();
                     this.initAllDepth();
                 }
@@ -342,6 +363,7 @@
 
             window.onload = () => {
                 game = new Phaser.Game(config);
+                window.focus();
             }
 
             // function preload() {
