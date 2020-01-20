@@ -132,14 +132,9 @@
 
                 }
                 update() {
-                    // control
+                    // movement control
                     if (this.cursors.left.isDown && this.cursors.right.isDown) {
-                        if (this.whichOneFirst === 0) { // left first
-                            this.updateMovement(1); // go right
-                        }
-                        else { // right first
-                            this.updateMovement(0); // go left
-                        }
+                        (this.whichOneFirst === 0) ? this.updateMovement(1) : this.updateMovement(0);
                     }
                     else if (this.cursors.left.isDown || this.cursors.right.isDown) {
                         if (this.cursors.left.isDown) {
