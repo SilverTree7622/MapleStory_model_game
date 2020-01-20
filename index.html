@@ -5,13 +5,6 @@
     <body>
         <div id="p3Game"></div>
         <script>
-            // var game;
-            // var graphics;
-            // var player;
-            // var stars;
-            // var platforms;
-            // var cursors;
-            // var movingPlatform;
 
             // Skill management for player
             class SkillManager {
@@ -19,13 +12,13 @@
                     this.skills = [];
                     this.properties = this.initProperties();
                 }
-                create(_scene) {
+                create(_scene, _texture) {
                     // jump skill
 
                     // line strike
                     this.createSkill(this.skills, {
                         name: 'strike',
-                        texture: 'line',
+                        texture: _texture,
                         movePos: {
                             x: 0, y: 0, durX: 0, durY: 0
                         },
@@ -45,7 +38,6 @@
                         
                     });
 
-                    console.log('this.skills:', this.skiils);
                 }
                 initAllVisible(_bool) {
                     
@@ -96,8 +88,9 @@
                 }
             }
 
-            class Entity { // 독립체
+            class Entity {
                 constructor() {
+                    this.self = undefined;
                     this.hp = 0;
                     this.autoHp = 0; // + per 5 sec
                     this.mp = 0;
@@ -106,8 +99,9 @@
                     this.isDeath = false;
                     this.isSuperMan = false;
                     this.direction = 1; // 0: left, 1: right
-                    this.textures = {
-                        idle: 'yellow',
+                    this.texture = undefined;
+                    this.texturesStatus = {
+                        idle: 'none',
                         move: 'blue',
                         gotHit: 'purple',
                         attack: 'red'
@@ -116,7 +110,7 @@
             }
 
             // control player
-            class Player extends Entity {
+            class Player extends Entity { // control player
                 constructor() {
                     super();
                     this.hp = 100;
@@ -124,11 +118,61 @@
                     this.mp = 100;
                     this.autoMp = 2;
                     this.dmg = 10;
+                    this.cursors = undefined;
+                    this.whichOneFirst = 0; // 0: left, 1: right
                 }
-                create() {
-
+                create(_scene, _texture) {
+                    this.self = _scene.physics.add.image(400, 0, _texture);
+                    this.self.setScale(2);
+                    this.self.setCollideWorldBounds(true);
+                    let tmpValue = 500;
+                    this.cursors = _scene.input.keyboard.createCursorKeys();
                 }
                 initAllVisible() {
+
+                }
+                update() {
+                    // control
+                    if (this.cursors.left.isDown && this.cursors.right.isDown) {
+                        if (this.whichOneFirst === 0) { // left first
+                            this.updateMovement(1); // go right
+                        }
+                        else { // right first
+                            this.updateMovement(0); // go left
+                        }
+                    }
+                    else if (this.cursors.left.isDown || this.cursors.right.isDown) {
+                        if (this.cursors.left.isDown) {
+                            this.updateMovement(0, 0);
+                        }
+                        else if (this.cursors.right.isDown) {
+                            this.updateMovement(1, 1);
+                        }
+                    }
+                    else {
+                        this.updateMovement(2);
+                    }
+                }
+                updateMovement(_firstDirection, _direct) {
+                    if (_direct !== undefined) {
+                        this.whichOneFirst = _direct;
+                    }
+                    switch(_firstDirection) {
+                        case 0: // left
+                            this.self.setVelocityX(-500);
+                            break;
+                        case 1: // right
+                            this.self.setVelocityX(500);
+                            break;
+                        case 2:
+                            this.self.setVelocityX(0);
+                            break;
+                        default:
+                            console.log(_firstDirection, '<= this is not on the options');
+                            break;
+                    }
+                }
+                attack() {
 
                 }
             }
@@ -147,13 +191,27 @@
                 update() {
 
                 }
+                
             }
 
-            class Platform {
+            class Platform { // platform for entities
                 constructor() {
-                    this.self = undefined;
+                    this.self = []
                 }
-                create() {
+                // create temp platforms
+                create(_scene, _texture) {
+                    let tmpImg = _scene.physics.add.image(400, 400, _texture);
+                    tmpImg.setImmovable(true);
+                    tmpImg.body.allowGravity = false;
+                    this.self.push(tmpImg);
+                    let tmpImg2 = _scene.physics.add.image(0, 560, _texture);
+                    tmpImg2.setImmovable(true);
+                    tmpImg2.body.allowGravity = false;
+                    tmpImg2.setOrigin(0, 0.5);
+                    tmpImg2.setDisplaySize(800, 64);
+                    this.self.push(tmpImg2);
+                }
+                initAllVisible(_bool) {
 
                 }
                 update() {
@@ -316,8 +374,15 @@
                     this.tDamageManager.create(this);
                     this.tPlayer.create(this, this.imgList.player);
                     this.tMonster.create(this, this.imgList.enemy);
-                    this.tPlatform.create(this, this.imgList.platform);
+                    this.tPlatform.create(this, this.imgList.platformer);
                     this.tUIManager.create(this);
+                    this.allCollideManager(this.physics, [
+                        this.tSkillManager.self,
+                        this.tPlayer.self,
+                        this.tMonster.self,
+                        this.tPlatform.self
+                    ]);
+                    
 
                     // temp background color
                     this.cameras.main.setBackgroundColor('#03d7fc');
@@ -331,12 +396,21 @@
                     this.tDamageManager.initAllVisible(!tmpTrue);
                     this.tPlayer.initAllVisible(tmpTrue);
                     this.tMonster.initAllVisible(tmpTrue);
+                    this.tPlatform.initAllVisible(tmpTrue);
                     this.tUIManager.initAllVisible(tmpTrue);
                 }
                 initAllDepth() {
 
                 }
+                allCollideManager(_physics, _list) {
+                    _physics.add.collider(_list[1], _list[3]); // player, platform
+                    _physics.add.collider(_list[1], _list[2]); // player, monster
+                    _physics.add.collider(_list[3], _list[2]); // platform, monster
+
+
+                }
                 update(_time, _delta) {
+                    this.tPlayer.update(_time, _delta);
                     this.tUIManager.update(_time, _delta);
                 }
             }
@@ -353,7 +427,7 @@
                 physics: {
                     default: 'arcade',
                     arcade: {
-                        gravity: { y: 300 },
+                        gravity: { y: 1000 },
                         debug: true
                     }
                 },
