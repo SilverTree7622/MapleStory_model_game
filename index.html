@@ -4,378 +4,12 @@
     </head>
     <body>
         <div id="p3Game"></div>
+        <script src="./js/utils.js"></script>
+        <script src="./js/entities.js"></script>
+        <script src="./js/etc.js"></script>
+        <script src="./js/skills.js"></script>
+        <script src="./js/ui.js"></script>
         <script>
-
-            // Skill management for player
-            class SkillManager {
-                constructor() {
-                    this.skills = [];
-                    this.properties = this.initProperties();
-                }
-                create(_scene, _texture) {
-                    // jump skill
-
-                    // line strike
-                    this.createSkill(this.skills, {
-                        name: 'strike',
-                        texture: _texture,
-                        movePos: {
-                            x: 0, y: 0, durX: 0, durY: 0
-                        },
-                        dmgPercent: 4, // dmg*4
-                        coolTime: 10,
-                        physicsDuringSkill: true,
-                        useSkill: function (_player, _tw) {
-                            console.log('this:', this);
-                            console.log('_player:', _player);
-                            console.log('_tw:', _tw);
-
-                            
-                            // _tw.addCounter({
-                                
-                            // });
-                        }
-                        
-                    });
-
-                }
-                initAllVisible(_bool) {
-                    
-                }
-                update() {
-
-                }
-
-                initProperties() {
-                    let tmpP = [];
-                    
-                    return tmpP;
-                }
-                createConfig(_list) {
-                    let tmpObj = {};
-                    tmpObj.name = _list.shift();
-                    tmpObj.texture = _list.shift();
-                    tmpObj.movePos = _list.shift();
-                    tmpObj.dmgPercent = _list.shift();
-                    tmpObj.coolTime = _list.shift();
-                    tmpObj.physicsDuringSkill = _list.shift();
-                    tmpObj.useSkill = undefined;
-                    return tmpObj;
-                }
-                createSkill(_skillList, _config) {
-                    let tmpSkill = _config;
-                    _skillList.push(tmpSkill);
-                }
-                useSkill(_idx, _player, _tw) { // using skill via idx
-                    this.skills[_idx].useSkill(_player, _tw);
-                    console.log('this.skiils[_idx]:', this.skiils[_idx]);
-                }
-            }
-
-            // Damage management for monsters
-            class DamageManager {
-                constructor() {
-
-                }
-                create() {
-
-                }
-                initAllVisible(_bool) {
-
-                }
-                update() {
-
-                }
-            }
-
-            class Entity {
-                constructor() {
-                    this.self = undefined;
-                    this.hp = 0;
-                    this.autoHp = 0; // + per 5 sec
-                    this.mp = 0;
-                    this.autoMp = 0; // + per 5 sec
-                    this.dmg = 0;
-                    this.isDeath = false;
-                    this.isSuperMan = false;
-                    this.direction = 1; // 0: left, 1: right
-                    this.texture = undefined;
-                    this.texturesStatus = {
-                        idle: 'none',
-                        move: 'blue',
-                        gotHit: 'purple',
-                        attack: 'red'
-                    };
-                }
-            }
-
-            // control player
-            class Player extends Entity { // control player
-                constructor() {
-                    super();
-                    this.hp = 100;
-                    this.autoHp = 1;
-                    this.mp = 100;
-                    this.autoMp = 2;
-                    this.dmg = 10;
-                    this.cursors = undefined;
-                    this.whichOneFirst = 0; // 0: left, 1: right
-                    this.attackCollider = undefined;
-                }
-                create(_scene, _texture) {
-                    this.self = _scene.physics.add.image(400, 0, _texture);
-                    this.self.setScale(2);
-                    this.self.setCollideWorldBounds(true);
-                    this.attackCollider = _scene.physics.add.image(0, 0, _texture);
-                    this.attackCollider.body.allowGravity = false;
-                    this.cursors = _scene.input.keyboard.createCursorKeys();
-                }
-                initAllVisible() {
-
-                }
-                update(_time, _delta) {
-                    // movement control
-                    if (this.cursors.left.isDown && this.cursors.right.isDown) {
-                        (this.whichOneFirst === 0) ? this.updateMovement(1, _delta) : this.updateMovement(0, _delta);
-                    }
-                    else if (this.cursors.left.isDown || this.cursors.right.isDown) {
-                        if (this.cursors.left.isDown) {
-                            this.updateMovement(0, _delta, 0);
-                        }
-                        else if (this.cursors.right.isDown) {
-                            this.updateMovement(1, _delta, 1);
-                        }
-                    }
-                    else {
-                        this.updateMovement(2, _delta);
-                    }
-                }
-                updateMovement(_firstDirection, _delta, _direct) {
-                    if (_direct !== undefined) {
-                        this.whichOneFirst = _direct;
-                    }
-                    switch(_firstDirection) {
-                        case 0: // left
-                            // this.self.setVelocityX(-20 * _delta);
-                            if (this.self.body.x <= 0) {
-                                this.self.body.x = 0;
-                            }
-                            else {
-                                this.self.body.x = this.self.body.x + _delta * (-0.5);
-                            }
-                            break;
-                        case 1: // right
-                            // this.self.setVelocityX(20 * _delta);
-                            if (this.self.body.x + this.self.body.width >= 800) {
-                                this.self.body.x = 800 - this.self.body.width;
-                            }
-                            else {
-                                this.self.body.x = this.self.body.x + _delta * (0.5);
-                            }
-                            break;
-                        case 2: // idle
-                            // this.self.setVelocityX(0);
-                            break;
-                        default:
-                            console.log(_firstDirection, '<= this is not on the options');
-                            break;
-                    }
-                    this.followMovement();
-                }
-                followMovement() {
-                    this.attackCollider.y = this.self.y;
-                    if (this.whichOneFirst === 0) {
-                        this.attackCollider.x = this.self.x - 50;
-                    }
-                    else {
-                        this.attackCollider.x = this.self.x + 50;
-                    }
-                }
-                attack() {
-
-                }
-            }
-            // basic monster & properties
-            class Monster extends Entity {
-                constructor() {
-                    super();
-                }
-                create() {
-
-                }
-                initAllVisible(_bool) {
-
-                }
-                update() {
-
-                }
-                
-            }
-            // monsters manager
-            class MonsterManager {
-                constructor() {
-                    this.types = {};
-                    this.types.basic = undefined;
-                    this.types.boss = undefined;
-                }
-                create(_scene, _texture) {
-                    // this.types.basic = 
-                }
-                initAllVisible(_bool) {
-
-                }
-                update() {
-
-                }
-            }
-
-            class Platform { // platform for entities
-                constructor() {
-                    this.self = []
-                }
-                // create temp platforms
-                create(_scene, _texture) {
-                    let tmpImg = _scene.physics.add.image(400, 400, _texture);
-                    tmpImg.setImmovable(true);
-                    tmpImg.body.allowGravity = false;
-                    this.self.push(tmpImg);
-                    let tmpImg2 = _scene.physics.add.image(0, 560, _texture);
-                    tmpImg2.setImmovable(true);
-                    tmpImg2.body.allowGravity = false;
-                    tmpImg2.setOrigin(0, 0.5);
-                    tmpImg2.setDisplaySize(800, 64);
-                    this.self.push(tmpImg2);
-                }
-                initAllVisible(_bool) {
-
-                }
-                update() {
-
-                }
-            }
-
-            // UI about all the player input & All skill thumnail arrangement
-            class UIManager {
-                constructor(_storage) {
-                    this.playerPad = this.initPlayerPad();
-                    this.attackKey = this.initAttackKey();
-                    this.skillsTab = this.initSkillsTab();
-                    this.info = this.initInfo(_storage);
-                }
-                create(_scene) {
-                    this.createPlayerPad(_scene);
-                    this.createAttackKey(_scene);
-                    this.createSkillsTab(_scene);
-                    this.createInfo(_scene);
-                }
-                initAllVisible(_bool) {
-                    // this.playerPad.con.setVisible(_bool);
-                    // this.attackKey.con.setVisible(_bool);
-                    // this.skillsTab.con.setVisible(_bool);
-                }
-                update(_time, _delta) {
-                    this.updateInfoScore();
-                }
-                
-                // init
-                initPlayerPad() { // movement pad
-                    let tmpPP = {};
-                    tmpPP.up = undefined;
-                    tmpPP.down = undefined;
-                    tmpPP.left = undefined;
-                    tmpPP.right = undefined;
-                    tmpPP.con = undefined;
-                    tmpPP.pos = {
-                        x: 100, y: 400
-                    };
-                    return tmpPP;
-                }
-                initAttackKey() {
-                    let tmpAK = {};
-                    tmpAK.circleTexture = undefined;
-                    tmpAK.stringTexture = undefined;
-                    tmpAK.stringTextureTxt = undefined;
-                    tmpAK.con = undefined;
-                    tmpAK.pos = {
-                        x: 500, y: 400
-                    };
-                    return tmpAK;
-                }
-                initSkillsTab() {
-
-                }
-                initInfo(_storage) {
-                    let tmpI = {};
-                    tmpI.score = {
-                        runtimeTxt: 'SCORE : ',
-                        runtime: 0,
-                        runtimeStr: undefined,
-                        bestTxt: 'BEST : ',
-                        best: _storage == null ? 0 : _storage,
-                        bestStr: undefined
-                    };
-                    // fontFamily, font color, fontSize, border color, border color
-                    tmpI.fontProperties = ['Arial', '#ffffff', 30, '#000000', 3];
-                    tmpI.con = undefined;
-                    return tmpI;
-                }
-                // create
-                createPlayerPad() {
-
-                }
-                createAttackKey() {
-                    
-                }
-                createSkillsTab() {
-
-                }
-                createInfo(_scene) {
-                    this.createInfoScore(_scene);
-                    this.info.con = _scene.add.container();
-                    this.info.con.add([
-                        this.info.score.runtimeStr, this.info.score.bestStr
-                    ]);
-                    this.info.con.x = 10;
-                    this.info.con.y = 10;
-                }
-                createInfoScore(_scene) {
-                    this.info.score.runtimeStr = _scene.add.text(0, 0, this.info.score.runtimeTxt + this.info.score.runtime);
-                    this.info.score.runtimeStr.setFontFamily(this.info.fontProperties[0]);
-                    this.info.score.runtimeStr.setColor(this.info.fontProperties[1]);
-                    this.info.score.runtimeStr.setFontSize(this.info.fontProperties[2]);
-                    this.info.score.runtimeStr.setStroke(this.info.fontProperties[3], this.info.fontProperties[4]);
-                    this.info.score.bestStr = _scene.add.text(0, 35, this.info.score.bestTxt + this.info.score.best);
-                    this.info.score.bestStr.setFontFamily(this.info.fontProperties[0]);
-                    this.info.score.bestStr.setColor(this.info.fontProperties[1]);
-                    this.info.score.bestStr.setFontSize(this.info.fontProperties[2]);
-                    this.info.score.bestStr.setStroke(this.info.fontProperties[3], this.info.fontProperties[4]);
-                }
-                updateInfoScore() {
-                    // update best score via now score
-                    if (this.info.score.runtime >= this.info.score.best) {
-                        this.info.score.best = this.info.score.runtime;
-                        this.info.score.bestStr.setText(this.info.score.bestTxt + this.info.score.best);
-                    }
-                }
-            }
-
-            class WebStorage { // web local storage class
-                constructor() {
-                    this.name = 'MapleStoryModelGame';
-                    this.self = window.localStorage;
-                }
-                create() {
-                    // console.log('storage this:', this.self);
-                }
-                setItem(_value) {
-                    this.self.setItem(this.name, _value);
-                }
-                getItem() {
-                    let tmpValue = this.self.getItem(this.name);
-                    return (tmpValue == null) ? 0 : tmpValue;
-                }
-            }
-
             // Main Scene from Phaser Scene
             class MainScene extends Phaser.Scene {
                 constructor() {
@@ -384,6 +18,7 @@
                         apple: 'apple',
                         player: 'player',
                         enemy: 'enemy',
+                        attack: 'attack',
                         platformer: 'platformer',
                         arrowSkill: 'arrowSkill'
                     };
@@ -401,6 +36,7 @@
                     this.load.image(this.imgList.apple, 'https://labs.phaser.io/assets/sprites/apple.png');
                     this.load.image(this.imgList.player, 'https://labs.phaser.io/assets/sprites/ufo.png');
                     this.load.image(this.imgList.enemy, 'https://labs.phaser.io/assets/sprites/wabbit.png');
+                    this.load.image(this.imgList.attack, 'https://labs.phaser.io/assets/sprites/blue_ball.png');
                     this.load.image(this.imgList.platformer, 'https://labs.phaser.io/assets/sprites/platform.png');
                 }
                 create() {
@@ -410,7 +46,7 @@
                     this.tPlayer.create(this, this.imgList.player);
                     this.tMonster.create(this, this.imgList.enemy);
                     this.tPlatform.create(this, this.imgList.platformer);
-                    this.tUIManager.create(this);
+                    this.tUIManager.create(this, this.imgList, this.tPlayer.cursors);
                     this.allCollideManager(this.physics, [
                         this.tSkillManager.self,
                         this.tPlayer.self,
@@ -418,7 +54,6 @@
                         this.tPlatform.self
                     ]);
                     
-
                     // temp background color
                     this.cameras.main.setBackgroundColor('#03d7fc');
 
@@ -432,7 +67,7 @@
                     this.tPlayer.initAllVisible(tmpTrue);
                     this.tMonster.initAllVisible(tmpTrue);
                     this.tPlatform.initAllVisible(tmpTrue);
-                    this.tUIManager.initAllVisible(tmpTrue);
+                    // this.tUIManager.initAllVisible(tmpTrue);
                 }
                 initAllDepth() {
 
@@ -461,7 +96,7 @@
                     default: 'arcade',
                     arcade: {
                         gravity: { y: 1000 },
-                        debug: true
+                        debug: false
                     }
                 },
                 banner: false,
