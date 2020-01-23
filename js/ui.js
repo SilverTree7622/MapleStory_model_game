@@ -8,12 +8,12 @@ class UIManager {
         this.info = this.initInfo(_storage);
         this.etc = this.initEtc();
     }
-    create(_scene, _texture, _cursors) {
+    create(_scene, _texture, _cursors, _target) {
         this.createPlayerPad(_scene, _texture.arrowSkill);
         this.createAttackKey(_scene, _texture.attack);
         this.createSkillsTab(_scene);
         this.createInfo(_scene);
-        this.createAllInteractive(_scene, _cursors);
+        this.createAllInteractive(_scene, _cursors, _target);
     }
     update(_time, _delta) {
         this.updateInfoScore();
@@ -23,6 +23,7 @@ class UIManager {
     initEtc() {
         let tmpEO = {};
         tmpEO.isPointerDown = false;
+        tmpEO.isAttackDone = true;
         return tmpEO;
     }
     initPlayerPad() { // movement pad
@@ -121,7 +122,7 @@ class UIManager {
         this.info.score.bestStr.setFontSize(this.info.fontProperties[2]);
         this.info.score.bestStr.setStroke(this.info.fontProperties[3], this.info.fontProperties[4]);
     }
-    createAllInteractive(_scene, _cursors) { // create all set interactive
+    createAllInteractive(_scene, _cursors, _target) { // create all set interactive
         // scene pointer checker
         _scene.input.on('pointerdown', () => {
             this.etc.isPointerDown = true;
@@ -179,10 +180,30 @@ class UIManager {
 
         // attack pad key
         this.attackKey.texture.on('pointerdown', () => {
-            _scene.tweens.add({
-                target: 
-            });
+            this.attackEvent(_scene, _target);
         });
+        _scene.input.keyboard.on('keydown-Z', () => {
+            this.attackEvent(_scene, _target);
+        });
+        
+    }
+    attackEvent(_scene, _target) {
+        if (this.etc.isAttackDone) {
+            var tmpTw = _scene.tweens.addCounter({
+                from: 0, to: 360,
+                duration: 360, ease: 'Linear',
+                onStart: () => {
+                    this.etc.isAttackDone = false;
+                },
+                onUpdate: () => {
+                    _target.setAngle(tmpTw.getValue());
+                },
+                onComplete: () => {
+                    _target.setAngle(0);
+                    this.etc.isAttackDone = true;
+                }
+            });
+        }
     }
     updateInfoScore() {
         // update best score via now score

@@ -46,7 +46,7 @@
                     this.tPlayer.create(this, this.imgList.player);
                     this.tMonster.create(this, this.imgList.enemy);
                     this.tPlatform.create(this, this.imgList.platformer);
-                    this.tUIManager.create(this, this.imgList, this.tPlayer.cursors);
+                    this.tUIManager.create(this, this.imgList, this.tPlayer.cursors, this.tPlayer.attackCollider);
                     this.allCollideManager(this.physics, [
                         this.tSkillManager.self,
                         this.tPlayer.self,
@@ -107,7 +107,6 @@
                 game = new Phaser.Game(config);
                 window.focus();
             }
-
         </script>
     </body>
 

@@ -31,7 +31,6 @@ class Player extends Entity { // control player
         this.dmg = 10;
         this.cursors = undefined;
         this.whichOneFirst = 0; // 0: left, 1: right
-        this.whichOneFinal = 0; // 0: left, 1: right
         this.attackCollider = undefined;
     }
     create(_scene, _texture) {
@@ -46,7 +45,6 @@ class Player extends Entity { // control player
 
     }
     update(_time, _delta) {
-        // console.log('this.cursors:', this.cursors);
         // movement control
         if (this.cursors.left.isDown && this.cursors.right.isDown) {
             (this.whichOneFirst === 0) ? this.updateMovement(1, _delta) : this.updateMovement(0, _delta);
