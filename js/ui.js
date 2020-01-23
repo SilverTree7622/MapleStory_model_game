@@ -13,6 +13,7 @@ class UIManager {
         this.createAttackKey(_scene, _texture.attack);
         this.createSkillsTab(_scene);
         this.createInfo(_scene);
+        this.createMultiPointer(_scene);
         this.createAllInteractive(_scene, _cursors, _target);
     }
     update(_time, _delta) {
@@ -109,6 +110,9 @@ class UIManager {
             this.info.score.runtimeStr, this.info.score.bestStr
         ]);
         this.info.con.setPosition(10, 10);
+    }
+    createMultiPointer(_scene) {
+        _scene.input.addPointer(1);
     }
     createInfoScore(_scene) {
         this.info.score.runtimeStr = _scene.add.text(0, 0, this.info.score.runtimeTxt + this.info.score.runtime);
